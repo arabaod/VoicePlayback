@@ -1,31 +1,33 @@
-# VoiceModulator
+**WARNING! THIS PROJECT INVOLVES SOLDERING. PLEASE USE SAFETY GEAR WHEN HANDLING EXTREME TEMPERATURES AND ELECTRICAL TOOLS.**
 
 ## Description
-This project is a night night with a flex sensor to adjust the sensitivity of the light while it is on. It is bulit with an Arduino microcontroller, a photoresistor, a LED, and a flexible sensor. The fully formed design is where the flex sensor would be wrapped aorund a knob that increase or decrease the resistance to the LED. It gives people a chance to decide how much light they or their child wants at night without being blinded. The sensitivity of the "knob" depends on the capabilities of the flex sensor.
+This project is a device that can play audio from memory. It is built with an Arduino microcontroller, a MAX4466 microphone chip with adjustable gain, a microSD card reader chip, a microSD formatted with FAT32, a female audio jack with USB connecter, 1 1k ohm resistor, 2 10k ohm resistors, 1 10 uF capacitor, 2 push buttons, and connecting wires. The songs will come from the microSD storage. This is a simple project that serves as a prototype for wiring that can be stuffed inside a teddy bear to entertain young children. There is a coding base for this project that can playback a recorded audio using the microphone. It's still in Beta though.
 
 ## The Problem
-Having been involved with very young children, siblings and cousins, putting them to sleep can be tricky. Especially with night anxiety, it can be hard for children to feel safe at night. However, while it is nice to always cater to children. Night lights can be jarring when walking around in the house at night, disrupting your sleepiness when you quickly want to enjoy a midnight snack in the dark in peace. Studies show that night lights can also be helpful for baby brain development.
-
-## Why?
-Night lights can be annoying and can be blinding in small spaces. Adults should not have to sacrifice their ability to sleep at night for their child's ability to sleep. Night lights are only affective when the child is awake. After the child falls asleep, the light burns wasted energy.
+Children's toys are just becoming too expensive these days and yet, their need for development and sonic entertainment has yet to decrease. If the bank account is hurting is time to get creative, provided that the child is old enough to understand electricity and has the mobility skills to push buttons. The playback toy provides an extremely cheap way to play audio to soothe or excite your child.
 
 ## Discoveries
-During the development of this project, I noticed that the photoresistor naturally increases its resistance in the dark which turned the LED off which was the opposite of what I wanted. To reverse the effect, I switched the position of the photoresistor on a voltage divider.
+### The RC Filter
+The TMRpcm library outputs the audio as a PWM signal from an Arduino. The RC filter gives an analog signal which then be played by your computer or through an amplifier or speaker. IT is possible to use an external DAC (Digital to Analog Converter) which is probably a better option for audio quality, but more expensive. The RC filter, the resistor and capacitor in series, acts as a lowpass filter and can still produce some noise. Again, a DAC would have been better. Below is a schematic for an RC filter and it ability to act as a low pass filter - a filter that lets lower frequencies go through and stop higher ones.
 
-![image](https://user-images.githubusercontent.com/89606106/230819907-536d9c49-3027-49b1-a75f-3c756ead0d1e.png)
+![images](https://github.com/arabaod/VoicePlayback/assets/89606106/b9392c55-691f-46f4-ab7c-3dd85e32009d)
 
-The above schematic shows a voltage divider. Ignore the resistor, R5. At first, my photoresistor was placed at the position of R1, where one pin is connected to the power source which activates the normal "Light Mode." Switching the photoresistor to the position of R2 activates dark mode because lowering the resistance to ground instead will lower the resistance to the LED. Both sensor use voltage divider circuits with pull-down resistors.
+### The EZ Button Library
+Debouncing the buttons within the different methods and loops in the code became difficult. But having found the EZ Button Library, I could use simple methods to debounce, add more buttons to debounce easily, and even run code when the button is pressed AND released all in one library. The library is found here: https://github.com/ArduinoGetStarted/button 
 
-Explore this concept more at this link: https://electronics.stackexchange.com/questions/101085/reversing-a-photoresistor
+One issue though is converting the class in the library to C code that can be compiled by the AVR-GCC Toolchain. In your prototyping, you have to debounce both buttons the traditional way with many more lines of code!
 
 ## Challenges
-I encountered issues with the consistency in the LED brightness due to the resistor I used for the flex sensor. I used a 1M ohm resistor (due to availability) instead of the 47k ohm resistor that is suggested for use. So, when the photoresistor senses low light and the LED goes bright, the LED either stays bright or becomes very dim. The adjustment process is very abrupt. Also, there is a delay between sensing dark mode and light mode. Patience is key. Another obstacle was trying to break down the Arduino analogRead function to low level C language that can be read by avrdude.
+Learning how to solder was definitely a journey as I was a bit wary of touching something so hot. It was also my first time, but I think that it turned out well.
+With the amount of libraries that were added in the Arduino IDE, it was very difficult to break down objects into simple methods of C libraries.
 
 ## Future Features
-I hope to add an outer casing and more LEDs to make the night light more enticing to a younger audience.
+With all the wiring and soldering, it can be easy to forget that this project is meant for young hands. I will replace the button with keys or colorful button covers because of the attractive colors and greater surface area. It will be harder for a young hand to make a mistake. The next stage of this development will include using a switch to switch between playback mode and record mode. However, this version would require more buttons for input.
+
+The next feature would be to mimic apps of the early 2010's and be able to apply different audio filters. To further explain, someone would record an audio and the device would be able to play it back at a lower pitch, lower speed, higher pitch, higher speed, etc.
 
 ## Installation Instructions w/AVR Toolchain
-Please follow the instructions on the following link to download and install the AVRDUDE to your OS, perferably a Windows system for ease of use.
+Please follow the instructions on the following link to download and install the AVRDUDE to your OS, preferably a Windows system for ease of use.
 
 Link: https://tinusaur.com/guides/avr-gcc-toolchain/
 
@@ -45,28 +47,25 @@ avr-objcopy -V
 
 These instructions may differ by version or if you have decided to use a different microcontroller than an Arduino UNO Rev 3.
 
-## Using the Night Light
-After installation and applying power to the Arduino, the LED should automatically be on, but dim. You can activate dark mode by covering the photoresistor with any opaque object which will brighten the LED. In dark mode, you can begin to wrap the flex sensor to adjust the brightness.
+## REMEMBER!
+Uncomment #define buffSize 128 AND #define ENABLE_RECORDING in pcmConfig.h
 
 ## Source Material / Credits
-Here is a site that introduces the flex sensor and some beginning code to get you started.
-Link: https://lastminuteengineers.com/flex-sensor-arduino-tutorial/#:~:text=Connecting%20a%20flex%20sensor%20to,resistor%20and%20the%20flex%20sensor.
+The basis for the code that deals with audio and the TMRpcm library comes from this link: https://www.instructables.com/Arduino-Becomes-Talking-Tom/
 
-Here is a site that introduces the photoresistor and explains its basic functionality and wiring.
-Link: https://www.digikey.com/en/maker/blogs/2022/how-to-use-a-phototransistor-with-an-arduino
-
-# Demo
-Link: https://youtu.be/2uOLE6uXoPU
-
+Here is the video explaining the background thought process: https://www.youtube.com/watch?v=lTsIW7RqdDw
+ 
 ## Items Needed
 * Arduino UNO Rev3 Microcontroller
 * Arduino USB cable
-* 1 Photoresistor
-* 1 Flex Sensor
+* microSD Card Reader with SPI
+* Female Audio Jack
+* Use PC Speakers OR PAM8403 amplifier module
+* 1 10uF Capacitor
+* 1 1k ohm Resistor
 * 2 10k ohm Resistors
-* 1 LED
-* 1 100k ohm Resistor
-* 6 wires
+* 2 Pushbuttons
+* Connecting wires
 
 ## Quick Pic
-![20230410_051254](https://user-images.githubusercontent.com/89606106/230872110-2a5a1332-44a5-4360-b48f-2ee5660aeb13.jpg)
+![QuickPic](https://github.com/arabaod/VoicePlayback/assets/89606106/ccf6ffcb-d44f-439d-932c-55e70b58be48)
